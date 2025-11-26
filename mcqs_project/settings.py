@@ -55,6 +55,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -110,11 +111,25 @@ DATABASES = {
 
 
 CORS_ALLOWED_ORIGINS = [
+    "https://quizwebiste.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://quizwebiste.vercel.app"
+   
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+
+
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "accept",
+    "origin",
+    "user-agent",
+    "referer",
+    "accept-encoding",
+]
+
 
 
 # Password validation
