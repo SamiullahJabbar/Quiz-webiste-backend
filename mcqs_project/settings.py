@@ -123,6 +123,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://quizwebiste.vercel.app",
     "http://localhost:3000",
     "http://51.21.169.68",
+    "https://litigation-practices-markets-fabrics.trycloudflare.com"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -133,6 +134,20 @@ CORS_ALLOW_HEADERS = [
     'origin',
     'authorization',
     'x-csrftoken',
+]
+
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "litigation-practices-markets-fabrics.trycloudflare.com",
+    "quizwebiste.vercel.app",
+]
+
+
+
+CORS_ALLOWED_ORIGINS = [
+    "https://litigation-practices-markets-fabrics.trycloudflare.com",
+    "https://quizwebiste.vercel.app",
 ]
 
 CORS_ALLOW_METHODS = [
