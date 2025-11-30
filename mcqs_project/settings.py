@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-*#1-(8)!b9g-=wk_iax$(u$$ryx#4ej^8$9a=qkub$k#8y&dj2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -111,20 +111,19 @@ DATABASES = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://www.easyexam.online",
-    "https://admin.easyexam.online",
-    "http://127.0.0.1:3000",
+    "easyexam.online",
+    "www.easyexam.online",
+    "admin.easyexam.online",
    
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 # CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://quizwebiste.vercel.app",
-    "http://localhost:3000",
-    "http://51.21.169.68",
-    "https://www.easyexam.online",
-    "https://admin.easyexam.online",
+    "easyexam.online",
+    "www.easyexam.online",
+    "admin.easyexam.online",
+
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -146,9 +145,12 @@ ALLOWED_HOSTS = [
 ]
 
 
+
 CORS_ALLOWED_ORIGINS = [
-    "https://www.easyexam.online",
-    "https://admin.easyexam.online",
+    "easyexam.online",
+    "www.easyexam.online",
+    "admin.easyexam.online",
+
 ]
 
 CORS_ALLOW_METHODS = [
