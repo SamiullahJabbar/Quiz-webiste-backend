@@ -140,10 +140,10 @@ CORS_ALLOW_HEADERS = [
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "https://www.easyexam.online",
-    "https://admin.easyexam.online",
+    "easyexam.online",
+    "www.easyexam.online",
+    "admin.easyexam.online",
 ]
-
 
 
 CORS_ALLOWED_ORIGINS = [
