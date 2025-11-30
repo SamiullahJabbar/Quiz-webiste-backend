@@ -7,22 +7,27 @@ class TestAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'created_by', 'created_at')
     search_fields = ('name', 'created_by__email')
 
-@admin.register(Section)
+from django.contrib import admin
+from .models import Test, Section, Question
+
+class QuestionInline(admin.StackedInline):
+    model = Question
+    extra = 3
+    fields = [
+        'text', 'image',
+        'is_open_ended',
+        'option_a_text', 'option_a_image',
+        'option_b_text', 'option_b_image',
+        'option_c_text', 'option_c_image',
+        'option_d_text', 'option_d_image',
+        'correct_option'
+    ]
+
 class SectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'test', 'title', 'type', 'order', 'duration_minutes')
-    list_filter = ('type', 'test')
-    ordering = ('test', 'order')
+    inlines = [QuestionInline]
 
-@admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'section', 'short_text', 'has_image')
-    list_filter = ('section__test', 'section__type')
-
-    def short_text(self, obj):
-        return (obj.text or "")[:50]
-    def has_image(self, obj):
-        return bool(obj.image)
-    has_image.boolean = True
+admin.site.register(Section, SectionAdmin)
+# admin.site.register(Question) 
 
 @admin.register(Attempt)
 class AttemptAdmin(admin.ModelAdmin):

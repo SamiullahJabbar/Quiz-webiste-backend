@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_filters',
     'accounts',
     'tests',
+    'ckeditor',
 ]
 
 REST_FRAMEWORK = {
