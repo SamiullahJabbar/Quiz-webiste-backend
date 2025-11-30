@@ -3,6 +3,7 @@ import random, string
 from django.db import models
 from accounts.models import User
 from django.utils import timezone
+from ckeditor.fields import RichTextField
 
 def generate_test_code():
     return ''.join(random.choices(string.digits, k=6))
@@ -36,25 +37,24 @@ class Section(models.Model):
     def __str__(self):
         return f"{self.test.name if self.test else ''} - {self.title} ({self.duration_minutes} mins)"
 
+
 class Question(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='questions', null=True, blank=True)
-    text = models.TextField(blank=True, null=True)
+    text = RichTextField(blank=True, null=True)  
     image = models.ImageField(upload_to='questions/', blank=True, null=True)
 
-    # ✅ New field: mark if open-ended
     is_open_ended = models.BooleanField(default=False, help_text="Mark this if question requires manual answer")
 
-    # Options (only used if is_open_ended = False)
-    option_a_text = models.CharField(max_length=255, blank=True, null=True)
+    option_a_text = models.TextField( blank=True, null=True)
     option_a_image = models.ImageField(upload_to='options/', blank=True, null=True)
 
-    option_b_text = models.CharField(max_length=255, blank=True, null=True)
+    option_b_text = models.TextField( blank=True, null=True)
     option_b_image = models.ImageField(upload_to='options/', blank=True, null=True)
 
-    option_c_text = models.CharField(max_length=255, blank=True, null=True)
+    option_c_text = models.TextField( blank=True, null=True)
     option_c_image = models.ImageField(upload_to='options/', blank=True, null=True)
 
-    option_d_text = models.CharField(max_length=255, blank=True, null=True)
+    option_d_text = models.TextField( blank=True, null=True)
     option_d_image = models.ImageField(upload_to='options/', blank=True, null=True)
 
     correct_option = models.CharField(
@@ -65,6 +65,7 @@ class Question(models.Model):
 
     def __str__(self):
         return f"Q: {(self.text or '')[:30]}..."
+
 
 
 class Attempt(models.Model):
