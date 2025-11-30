@@ -111,8 +111,8 @@ DATABASES = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://quizwebiste.vercel.app",
-    "http://localhost:3000",
+    "https://www.easyexam.online",
+    "https://admin.easyexam.online",
     "http://127.0.0.1:3000",
    
 ]
@@ -123,7 +123,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://quizwebiste.vercel.app",
     "http://localhost:3000",
     "http://51.21.169.68",
-    "https://litigation-practices-markets-fabrics.trycloudflare.com"
+    "https://www.easyexam.online",
+    "https://admin.easyexam.online",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -139,15 +140,15 @@ CORS_ALLOW_HEADERS = [
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "litigation-practices-markets-fabrics.trycloudflare.com",
-    "quizwebiste.vercel.app",
+    "https://www.easyexam.online",
+    "https://admin.easyexam.online",
 ]
 
 
 
 CORS_ALLOWED_ORIGINS = [
-    "https://litigation-practices-markets-fabrics.trycloudflare.com",
-    "https://quizwebiste.vercel.app",
+    "https://www.easyexam.online",
+    "https://admin.easyexam.online",
 ]
 
 CORS_ALLOW_METHODS = [
@@ -207,11 +208,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
-
 # settings.py
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 
 
