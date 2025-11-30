@@ -70,7 +70,7 @@ ROOT_URLCONF = 'mcqs_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -205,3 +205,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+
+
+# settings.py
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
+
+EMAIL_HOST = 'smtp.gmail.com'  # Example SMTP
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'samoo7733402@gmail.com'
+EMAIL_HOST_PASSWORD = 'gljxkcqdnukbsgrd'
+DEFAULT_FROM_EMAIL = 'samoo7733402@gmail.com'
+

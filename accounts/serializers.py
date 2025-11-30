@@ -1,35 +1,17 @@
 from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
 from .models import User
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-    confirm_password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'date_of_birth', 'education', 'password', 'confirm_password']
-
-    def validate(self, attrs):
-        if attrs['password'] != attrs['confirm_password']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
-        return attrs
+        fields = ['first_name','last_name','email','date_of_birth','education','password']
 
     def create(self, validated_data):
-        validated_data.pop('confirm_password')
-        user = User.objects.create(
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            date_of_birth=validated_data.get('date_of_birth'),
-            education=validated_data['education'],
-        )
-        user.set_password(validated_data['password'])
-        user.save()
+        password = validated_data.pop('password')
+        user = User.objects.create_user(password=password, **validated_data)
         return user
-
-
-
 
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer

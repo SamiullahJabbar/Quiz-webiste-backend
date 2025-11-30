@@ -1,91 +1,128 @@
-from rest_framework import viewsets, permissions
+# tests/views.py
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Test, Question, Attempt
-from .serializers import TestSerializer, QuestionSerializer, AttemptSerializer, ResultSerializer
+from django.shortcuts import get_object_or_404
 
+from .models import Test, Section, Question, Attempt
+from .serializers import (
+    TestOverviewSerializer,
+    SectionSerializer,
+    QuestionSerializer,
+    AttemptSerializer
+)
 
-
-class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-from rest_framework import viewsets, permissions
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.utils import timezone
-from .models import Test, Question, Attempt
-from .serializers import TestSerializer, QuestionSerializer, AttemptSerializer, ResultSerializer
-
-class TestViewSet(viewsets.ModelViewSet):
+class TestViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Test.objects.all()
-    serializer_class = TestSerializer
-    permission_classes = [permissions.IsAuthenticated]  # ✅ only logged-in users
-
-    # 1️⃣ Available tests API
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
-    def available(self, request):
-        now = timezone.now()
-        tests = Test.objects.filter(start_time__lte=now, end_time__gte=now)
-        serializer = TestSerializer(tests, many=True)
-        return Response(serializer.data)
-
-    # 2️⃣ Access test by code API
-    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def access(self, request):
-        code = request.data.get('code')
-        try:
-            test = Test.objects.get(code=code)
-            test_data = TestSerializer(test).data
-            return Response({
-                "valid": True,
-                "test": test_data,
-                "questions": QuestionSerializer(test.questions.all(), many=True).data
-            })
-        except Test.DoesNotExist:
-            return Response({"valid": False, "message": "Invalid test code"}, status=400)
+    serializer_class = TestOverviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def verify_code(self, request):
+        # Input: { "code": "123456" }
         code = request.data.get('code')
-        try:
-            test = Test.objects.get(code=code)
+        if not code:
+            return Response({"message": "Code is required"}, status=400)
+        test = get_object_or_404(Test, code=code)
+
+        # Return overview, HIDE code
+        data = TestOverviewSerializer(test).data
+        # Add lightweight summary (counts and timers) if needed
+        summary = [
+            {
+                "section_id": s.id,
+                "title": s.title,
+                "type": s.type,
+                "order": s.order,
+                "duration_minutes": s.duration_minutes,
+                "question_count": s.questions.count(),
+            }
+            for s in test.sections.all()
+        ]
+
+        return Response({
+            "valid": True,
+            "test": data,
+            "summary": summary
+        }, status=200)
+
+    @action(detail=True, methods=['get'], url_path='section/(?P<section_id>[^/.]+)')
+    def get_section(self, request, pk=None, section_id=None):
+        # GET /api/tests/<test_id>/section/<section_id>/
+        test = self.get_object()
+        section = get_object_or_404(Section, id=section_id, test=test)
+
+        # Break sections return only timer info; no questions
+        if section.type == 'break':
             return Response({
-                "valid": True,
-                "test": {
-                    "id": test.id,
-                    "name": test.name,
-                    "code": test.code,
-                    "duration_minutes": test.duration_minutes,
-                    "start_time": test.start_time,
-                    "end_time": test.end_time
-                }
+                "section": {
+                    "id": section.id,
+                    "title": section.title,
+                    "type": section.type,
+                    "order": section.order,
+                    "duration_minutes": section.duration_minutes
+                },
+                "is_break": True
             })
-        except Test.DoesNotExist:
-            return Response({"valid": False, "message": "Invalid test code"}, status=400)
 
-class AttemptViewSet(viewsets.ModelViewSet):
-    queryset = Attempt.objects.all()
-    serializer_class = AttemptSerializer
-    permission_classes = [permissions.IsAuthenticated]  # ✅ only logged-in users
+        ser = SectionSerializer(section)
+        return Response({
+            "section": {
+                "id": section.id,
+                "title": section.title,
+                "type": section.type,
+                "order": section.order,
+                "duration_minutes": section.duration_minutes
+            },
+            "questions": ser.data.get('questions', [])
+        })
 
-    def perform_create(self, serializer):
-        # student identity from JWT token
-        student = self.request.user
-        test = serializer.validated_data['test']
-        answers = serializer.validated_data['answers']
+    @action(detail=True, methods=['post'], url_path='submit-section')
+    def submit_section(self, request, pk=None):
+        # POST /api/tests/<test_id>/submit-section/
+        # Body: { "section_id": 12, "answers": { "34": "A", "35": "C" } }
+        test = self.get_object()
+        section_id = request.data.get('section_id')
+        answers = request.data.get('answers', {})
 
-        # calculate score
-        score = 0
-        for q in test.questions.all():
-            if answers.get(str(q.id)) == q.correct_option:
-                score += 1
+        if not section_id:
+            return Response({"message": "section_id is required"}, status=400)
 
-        serializer.save(student=student, score=score)
+        section = get_object_or_404(Section, id=section_id, test=test)
+        # Store answers per section in Attempt
+        attempt, _ = Attempt.objects.get_or_create(student=request.user, test=test)
+        all_answers = attempt.answers or {}
+        all_answers[str(section.id)] = answers
+        attempt.answers = all_answers
+        attempt.save()
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
-    def my_results(self, request):
-        attempts = Attempt.objects.filter(student=request.user)
-        serializer = ResultSerializer(attempts, many=True)
+        return Response({"message": "Section answers saved", "next": "Proceed to next section"}, status=200)
+
+    @action(detail=True, methods=['post'], url_path='final-submit')
+    def final_submit(self, request, pk=None):
+        # Optionally compute score here; we only confirm submission
+        test = self.get_object()
+        try:
+            attempt = Attempt.objects.get(student=request.user, test=test)
+        except Attempt.DoesNotExist:
+            return Response({"message": "No attempt found"}, status=404)
+
+        # Score calculation placeholder (hide correct answers in API)
+        # You can implement scoring by comparing attempt.answers with DB correct_option server-side.
+        return Response({"message": "Test submitted successfully", "attempt_id": attempt.id}, status=200)
+
+
+
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .models import Test
+from .serializers import TestSummarySerializer
+
+class TestSummaryViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        tests = Test.objects.all()
+        serializer = TestSummarySerializer(tests, many=True)
         return Response(serializer.data)

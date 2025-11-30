@@ -1,9 +1,12 @@
-from rest_framework import routers
-from .views import TestViewSet, QuestionViewSet, AttemptViewSet
+# tests/urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import TestViewSet,TestSummaryViewSet
 
-router = routers.DefaultRouter()
-router.register(r'tests', TestViewSet)
-router.register(r'questions', QuestionViewSet)
-router.register(r'attempts', AttemptViewSet)
+router = DefaultRouter()
+router.register(r'tests', TestViewSet, basename='tests')
+router.register(r'test-summary', TestSummaryViewSet, basename='test-summary')
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('', include(router.urls)),
+]
