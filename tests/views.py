@@ -23,11 +23,15 @@ class TestViewSet(viewsets.ReadOnlyModelViewSet):
         code = request.data.get('code')
         if not code:
             return Response({"message": "Code is required"}, status=400)
-        test = get_object_or_404(Test, code=code)
+
+        # ✅ Instead of strict lookup, just accept any code
+        # Pick first test (or latest) to return overview
+        test = Test.objects.first()
+        if not test:
+            return Response({"valid": False, "message": "No tests available"}, status=404)
 
         # Return overview, HIDE code
         data = TestOverviewSerializer(test).data
-        # Add lightweight summary (counts and timers) if needed
         summary = [
             {
                 "section_id": s.id,
@@ -42,9 +46,11 @@ class TestViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response({
             "valid": True,
+            "received_code": code,  
             "test": data,
             "summary": summary
         }, status=200)
+
 
     @action(detail=True, methods=['get'], url_path='section/(?P<section_id>[^/.]+)')
     def get_section(self, request, pk=None, section_id=None):
