@@ -115,6 +115,7 @@ CORS_ALLOWED_ORIGINS = [
     "easyexam.online",
     "www.easyexam.online",
     "admin.easyexam.online",
+    "http://16.16.183.42"
    
 ]
 CORS_ALLOW_ALL_ORIGINS = True
@@ -124,6 +125,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://easyexam.online",
     "https://www.easyexam.online",
     "https://admin.easyexam.online",
+    "http://16.16.183.42"
 ]
 
 
@@ -142,6 +144,7 @@ ALLOWED_HOSTS = [
     "easyexam.online",
     "www.easyexam.online",
     "admin.easyexam.online",
+    "http://16.16.183.42"
 ]
 
 
@@ -150,6 +153,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://easyexam.online",
     "https://www.easyexam.online",
     "https://admin.easyexam.online",
+    "http://16.16.183.42"
 ]
 
 CORS_ALLOW_METHODS = [
